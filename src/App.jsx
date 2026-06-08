@@ -8,7 +8,6 @@ import Dashboard from "./admin/wrapper/Dashboard";
 import Recipe from "./admin/wrapper/Recipe";
 import UserDirectory from "./admin/wrapper/UserDirectory";
 import ProtectedRoute from "./components/ProtectedRoute";
-import FavouriteRecipe from "./components/Favourite/favouriteRecipe";
 import AllRecipeListWrapper from "./components/AllRecipes/AllRecipeListWrapper";
 
 function App() {
