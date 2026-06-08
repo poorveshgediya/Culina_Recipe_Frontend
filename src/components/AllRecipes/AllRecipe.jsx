@@ -2,7 +2,7 @@ import React from "react";
 import RecipeView from "./RecipeView";
 import { useState } from "react";
 import RecipeList from "./RecipeList";
-import FavouriteRecipe from "../Favourite/favouriteRecipe";
+import FavouriteRecipe from "../Favourite/FavouriteRecipe";
 
 const AllRecipe = ({ recipeNav, handleChangeRecipeNavToAllRecipes }) => {
   
