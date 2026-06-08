@@ -1,0 +1,249 @@
+@import "tailwindcss";
+
+@theme {
+  --color-outline: #717975;
+  --color-on-surface: #1c1c19;
+  --color-tertiary-container: #453113;
+  --color-surface-bright: #fcf9f4;
+  --color-surface-container: #f0ede9;
+  --color-surface-variant: #e5e2dd;
+  --color-on-secondary-fixed: #360f00;
+  --color-on-primary-fixed: #002019;
+  --color-tertiary-fixed: #ffddb2;
+  --color-background: #fcf9f4;
+  --color-on-secondary-container: #5d1f00;
+  --color-surface-dim: #dcdad5;
+  --color-outline-variant: #c1c8c4;
+  --color-surface: #fcf9f4;
+  --color-primary-fixed: #c7eade;
+  --color-on-tertiary-fixed: #291800;
+  --color-tertiary-fixed-dim: #e1c198;
+  --color-secondary-container: #fd712c;
+  --color-inverse-surface: #31302d;
+  --color-surface-container-low: #f6f3ee;
+  --color-on-tertiary-fixed-variant: #594323;
+  --color-surface-container-highest: #e5e2dd;
+  --color-secondary: #a43d00;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-fixed-variant: #7d2d00;
+  --color-on-error-container: #93000a;
+  --color-on-surface-variant: #414846;
+  --color-on-tertiary-container: #b69972;
+  --color-on-error: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-inverse-primary: #abcec2;
+  --color-on-primary-container: #82a499;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary: #2d1c02;
+  --color-on-primary: #ffffff;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-secondary-fixed: #ffdbcd;
+  --color-secondary-fixed-dim: #ffb597;
+  --color-primary-form: #02241d;
+  --color-surface-tint: #45655b;
+  --color-on-background: #1c1c19;
+  --color-primary-container: #1a3a32;
+  --color-primary-fixed-dim: #abcec2;
+  --color-on-primary-fixed-variant: #2d4d44;
+  --color-inverse-on-surface: #f3f0eb;
+  --color-surface-container-high: #ebe8e3;
+  --color-background-light: #f8f6f5;
+  --color-primary: #f46a25;
+  --color-background-dark: #221610;
+
+  /* Font Families */
+  --font-display: "Work Sans", sans-serif;
+  --font-serif: "Newsreader", serif;
+  --font-accent: "Playfair Display", serif;
+  --font-body: "Inter", sans-serif;
+  --font-headline: "Noto Serif";
+  --font-label: "Inter";
+
+  /* Border Radii */
+  --radius-DEFAULT: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+}
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e8d7ce;
+    border-radius: 10px;
+  }
+  .focus-terracotta:focus {
+    outline: none;
+    border-color: #d2691e !important;
+    box-shadow: 0 0 0 2px rgba(210, 105, 30, 0.2);
+  }
+
+  .recipe-card:hover .recipe-img {
+    transform: scale(1.05);
+  }
+
+  .active-sidebar-item {
+    background-color: rgba(244, 106, 37, 0.1);
+    color: #f46a25;
+    border-right: 3px solid #f46a25;
+  }
+
+  .material-symbols-outlined {
+    font-variation-settings:
+      "FILL" 0,
+      "wght" 400,
+      "GRAD" 0,
+      "opsz" 24;
+  }
+  .editorial-shadow {
+    box-shadow: 0 12px 40px rgba(28, 28, 25, 0.06);
+  }
+  .minimalist-input {
+    border: none;
+    border-bottom: 2px solid rgba(193, 200, 196, 0.2);
+    background-color: transparent;
+    transition: border-color 0.3s ease;
+  }
+  .minimalist-input:focus {
+    outline: none;
+    border-bottom-color: #f46a25;
+  }
+  .editorial-gradient {
+    background: radial-gradient(circle at center, #a43d00 0%, #fd712c 100%);
+  }
+  .editorial-input {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(193, 200, 196, 0.4);
+    padding: 0.5rem 0;
+    transition: border-color 0.3s ease;
+  }
+  .editorial-input:focus {
+    outline: none;
+    border-color: #f46a25;
+    box-shadow: none;
+  }
+  .fill-icon {
+    font-variation-settings: "FILL" 1;
+  }
+  .glass-card {
+    background: rgba(252, 249, 244, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  @keyframes skeleton-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  .animate-skeleton-pulse {
+    animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  .shimmer {
+    background: linear-gradient(90deg, #e5e2dd 25%, #f0ede9 50%, #e5e2dd 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+  }
+  .shimmer-bg {
+    background: linear-gradient(
+      90deg,
+      rgba(229, 226, 221, 0.4) 0%,
+      rgba(229, 226, 221, 0.8) 50%,
+      rgba(229, 226, 221, 0.4) 100%
+    );
+    background-size: 200% 100%;
+    animation: Listshimmer 1.5s infinite linear;
+  }
+
+  @keyframes Listshimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes subtle-spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes pulse-slow {
+    0%,
+    100% {
+      opacity: 0.8;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.02);
+    }
+  }
+  @keyframes reveal-up {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-subtle-spin {
+    animation: subtle-spin 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  .animate-pulse-slow {
+    animation: pulse-slow 4s ease-in-out infinite;
+  }
+  .reveal-delay {
+    animation: reveal-up 1.2s ease-out forwards;
+    opacity: 0;
+  }
+  .glass-overlay {
+    background: rgba(252, 249, 244, 0.6);
+    backdrop-filter: blur(8px);
+  }
+  .blur-ring {
+    border: 2px solid transparent;
+    border-top-color: #1a3a32;
+    border-right-color: #f46a25;
+    filter: blur(1px);
+  }
+}

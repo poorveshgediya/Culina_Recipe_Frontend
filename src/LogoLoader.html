@@ -1,0 +1,239 @@
+<!doctype html>
+
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>CulinaShare | Loading...</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;0,900;1,400&amp;family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-bright": "#fcf9f4",
+              "on-primary-fixed": "#002019",
+              tertiary: "#2d1c02",
+              "on-surface": "#1c1c19",
+              "inverse-primary": "#abcec2",
+              "on-primary-container": "#82a499",
+              "surface-tint": "#45655b",
+              "on-primary": "#ffffff",
+              "secondary-fixed": "#ffdbcd",
+              "error-container": "#ffdad6",
+              "on-secondary-fixed": "#360f00",
+              "primary-container": "#1a3a32",
+              "surface-dim": "#dcdad5",
+              "secondary-fixed-dim": "#ffb597",
+              "inverse-surface": "#31302d",
+              error: "#ba1a1a",
+              "surface-container-high": "#ebe8e3",
+              surface: "#fcf9f4",
+              secondary: "#a43d00",
+              "surface-container-low": "#f6f3ee",
+              "on-tertiary": "#ffffff",
+              "on-secondary-fixed-variant": "#7d2d00",
+              "on-tertiary-fixed-variant": "#594323",
+              "on-background": "#1c1c19",
+              "surface-variant": "#e5e2dd",
+              "surface-container-highest": "#e5e2dd",
+              "tertiary-fixed-dim": "#e1c198",
+              "on-error": "#ffffff",
+              "inverse-on-surface": "#f3f0eb",
+              "tertiary-container": "#453113",
+              "on-secondary": "#ffffff",
+              "surface-container": "#f0ede9",
+              outline: "#717975",
+              "on-secondary-container": "#5d1f00",
+              "surface-container-lowest": "#ffffff",
+              "primary-fixed-dim": "#abcec2",
+              "on-primary-fixed-variant": "#2d4d44",
+              "primary-fixed": "#c7eade",
+              "secondary-container": "#fd712c",
+              "on-error-container": "#93000a",
+              "tertiary-fixed": "#ffddb2",
+              "on-tertiary-container": "#b69972",
+              "on-tertiary-fixed": "#291800",
+              background: "#fcf9f4",
+              primary: "#02241d",
+              "on-surface-variant": "#414846",
+              "outline-variant": "#c1c8c4",
+            },
+            borderRadius: {
+              DEFAULT: "0.125rem",
+              lg: "0.25rem",
+              xl: "0.5rem",
+              full: "0.75rem",
+            },
+            fontFamily: {
+              headline: ["Noto Serif"],
+              display: ["Noto Serif"],
+              body: ["Inter"],
+              label: ["Inter"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      @keyframes subtle-spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes pulse-slow {
+        0%,
+        100% {
+          opacity: 0.8;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.02);
+        }
+      }
+      @keyframes reveal-up {
+        0% {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-subtle-spin {
+        animation: subtle-spin 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      }
+      .animate-pulse-slow {
+        animation: pulse-slow 4s ease-in-out infinite;
+      }
+      .reveal-delay {
+        animation: reveal-up 1.2s ease-out forwards;
+        opacity: 0;
+      }
+      .glass-overlay {
+        background: rgba(252, 249, 244, 0.6);
+        backdrop-filter: blur(8px);
+      }
+      .blur-ring {
+        border: 2px solid transparent;
+        border-top-color: #1a3a32;
+        border-right-color: #f46a25;
+        filter: blur(1px);
+      }
+    </style>
+  </head>
+  <body class="bg-surface-bright text-on-surface font-body overflow-hidden">
+    <!-- Loading Screen Container -->
+    <main
+      class="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden"
+    >
+      <!-- Abstract Background Elements (Editorial Asymmetry) -->
+      <div
+        class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-surface-container-low opacity-40 blur-3xl"
+      ></div>
+      <div
+        class="absolute -bottom-32 -right-32 w-[30rem] h-[30rem] rounded-full bg-primary-fixed opacity-10 blur-3xl"
+      ></div>
+      <!-- Asymmetric Editorial Image Component (Glassmorphism Overlay) -->
+      <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <img
+          class="w-full h-full object-cover opacity-5 scale-110"
+          data-alt="A high-end overhead photograph of a minimalist kitchen counter featuring fresh organic ingredients like rosemary sprigs and sea salt. The lighting is soft and natural, coming from a large side window, creating a serene and appetizing atmosphere. The color palette is dominated by soft creams and deep emerald greens, reflecting a premium culinary editorial style with a focus on tactile textures and intentional white space."
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkavEXjKbSAgiUcO0cqJJfwniXzMUd4UGQZJnkZziEoooTG3mVsaC3HDvgkkiwwB0-e4qlbg-XlPBwlkUxGuQ_acRI-xpm55EOUty_T0f9gTz5oyo_iT8Mw0IwewphUyu9zdnHMqVbIjONQq3jRVkfMUVwZs8ILNyNTuA_sJExh7DRw8qXfNMtqQkJzeT5kz741bss5_Fs8OiBuUapueFD5pd1sqv360lW6M_4En8AIWPJjc9tZy9sS7NHLTWHGkTIFRKsBtWyv4Vv"
+        />
+        <div class="absolute inset-0 glass-overlay"></div>
+      </div>
+      <!-- Central Loading Hub -->
+      <div class="relative z-10 flex flex-col items-center">
+        <!-- Logo & Loader Assembly -->
+        <div class="relative flex items-center justify-center w-48 h-48">
+          <!-- The Spinning Blur Ring -->
+          <div
+            class="absolute inset-0 rounded-full blur-ring animate-subtle-spin opacity-80"
+          ></div>
+          <!-- Inner Decorative Ring -->
+          <div
+            class="absolute inset-4 border border-outline-variant/20 rounded-full"
+          ></div>
+          <!-- Central Branding Element -->
+          <div
+            class="relative flex flex-col items-center justify-center bg-surface-bright p-8 rounded-full shadow-[0_12px_40px_rgba(28,28,25,0.06)] animate-pulse-slow"
+          >
+            <span
+              class="material-symbols-outlined text-5xl text-primary-container"
+              style="font-variation-settings: &quot;FILL&quot; 1"
+            >
+              restaurant_menu
+            </span>
+            <!-- <div class="mt-2 flex flex-col items-center">
+              <span
+                class="font-display text-2xl font-black text-primary-container tracking-tighter leading-none"
+                >C</span
+              >
+            </div> -->
+          </div>
+        </div>
+        <!-- Loading Text -->
+        <div
+          class="mt-12 text-center reveal-delay"
+          style="animation-delay: 0.3s"
+        >
+          <h1
+            class="font-display text-xl font-bold text-primary-container tracking-tight"
+          >
+            CulinaShare
+          </h1>
+          <p
+            class="mt-2 font-body text-sm font-medium uppercase tracking-[0.2em] text-on-surface-variant/70"
+          >
+            Loading Excellence
+          </p>
+          <!-- Animated Progress Dots -->
+          <div class="mt-6 flex justify-center gap-2">
+            <div
+              class="w-1.5 h-1.5 rounded-full bg-secondary animate-bounce"
+              style="animation-delay: 0.1s"
+            ></div>
+            <div
+              class="w-1.5 h-1.5 rounded-full bg-primary-container animate-bounce"
+              style="animation-delay: 0.2s"
+            ></div>
+            <div
+              class="w-1.5 h-1.5 rounded-full bg-secondary animate-bounce"
+              style="animation-delay: 0.3s"
+            ></div>
+          </div>
+        </div>
+      </div>
+      <!-- Subtle Footer Branding -->
+      <div
+        class="absolute bottom-12 z-10 reveal-delay"
+        style="animation-delay: 0.8s"
+      >
+        <p
+          class="font-label text-[10px] text-on-surface-variant/40 tracking-widest uppercase"
+        >
+          © 2024 CulinaShare Editorial
+        </p>
+      </div>
+    </main>
+  </body>
+</html>
