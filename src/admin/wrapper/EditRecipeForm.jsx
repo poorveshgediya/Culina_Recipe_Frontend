@@ -1,167 +1,349 @@
 import axios from "axios";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
-const EditRecipeForm = ({ recipe, closeEditForm }) => {
+const parseArray = (value) => {
+  if (Array.isArray(value)) return value;
+
+  try {
+    const parsedValue = JSON.parse(value || "[]");
+    return Array.isArray(parsedValue) ? parsedValue : [];
+  } catch {
+    return [];
+  }
+};
+
+const EditRecipeForm = ({
+  recipe,
+  closeEditForm,
+  showRecipes,
+}) => {
   const [recipeData, setRecipeData] = useState({
-    title: recipe.title,
-    description: recipe.description,
-    cooking_time: recipe.cooking_time,
-    preparation_time: recipe.preparation_time,
-    meal_type: recipe.meal_type,
-    difficulty_level: recipe.difficulty_level,
-    image_url: recipe.image_url,
-    Calories: recipe.Calories,
-    Protein: recipe.Protein,
-    Fats: recipe.Fats,
-    Carbs: recipe.Carbs,
-    tips: recipe.tips,
-    ingredients: Array.isArray(recipe.ingredients)
-      ? recipe.ingredients
-      : JSON.parse(recipe.ingredients || "[]"),
-    process: Array.isArray(recipe.process)
-      ? recipe.process
-      : JSON.parse(recipe.process || "[]"),
-    creator_name: recipe.creator_name,
+    title: recipe?.title || "",
+    description: recipe?.description || "",
+    cooking_time: recipe?.cooking_time || "",
+    preparation_time: recipe?.preparation_time || "",
+    meal_type: recipe?.meal_type || "",
+    difficulty_level: recipe?.difficulty_level || "",
+    image_url: recipe?.image_url || "",
+    Calories: recipe?.Calories || "",
+    Protein: recipe?.Protein || "",
+    Fats: recipe?.Fats || "",
+    Carbs: recipe?.Carbs || "",
+    tips: recipe?.tips || "",
+    ingredients: parseArray(recipe?.ingredients),
+    process: parseArray(recipe?.process),
+    creator_name: recipe?.creator_name || "",
   });
+
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSaveChanges = () => {
-    setIsLoading(true);
-    axios
-      .patch(`${import.meta.env.VITE_RECIPE_APP_API}/recipes/updateRecipe`, {
-        recipeData,
-        id: recipe.recipe_id,
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+  // Disable background scrolling while modal is open
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  // Close modal using Escape key
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === "Escape" && !isLoading) {
+        closeEditForm();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [closeEditForm, isLoading]);
+
+  const updateField = (fieldName, value) => {
+    setRecipeData((previous) => ({
+      ...previous,
+      [fieldName]: value,
+    }));
+  };
+
+  const handleSaveChanges = async () => {
+    if (!recipeData.title.trim()) {
+      alert("Recipe title is required.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      const response = await axios.patch(
+        `${import.meta.env.VITE_RECIPE_APP_API}/recipes/updateRecipe`,
+        {
+          recipeData,
+          id: recipe.recipe_id,
         },
-      })
-      .then((response) => {
-        alert(response.data.message);
-        closeEditForm(); // Close the form after saving
-      })
-      .catch((error) => {
-        alert(
-          error.response?.data?.message ||
-            "Failed to update recipe. Check if the server is running.",
-        );
-        console.error("Error updating recipe:", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      alert(response.data.message || "Recipe updated successfully.");
+
+      if (showRecipes) {
+        await showRecipes();
+      }
+
+      closeEditForm();
+    } catch (error) {
+      console.error("Error updating recipe:", error);
+
+      alert(
+        error.response?.data?.message ||
+          "Failed to update recipe. Check if the server is running."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddIngredient = () => {
+    setRecipeData((previous) => ({
+      ...previous,
+      ingredients: [...previous.ingredients, ""],
+    }));
+  };
+
+  const handleIngredientChange = (index, value) => {
+    setRecipeData((previous) => {
+      const updatedIngredients = [...previous.ingredients];
+      updatedIngredients[index] = value;
+
+      return {
+        ...previous,
+        ingredients: updatedIngredients,
+      };
+    });
   };
 
   const handleDeleteIngredient = (index) => {
-    setRecipeData({
-      ...recipeData,
-      ingredients: recipeData.ingredients.filter((_, i) => i !== index),
+    setRecipeData((previous) => ({
+      ...previous,
+      ingredients: previous.ingredients.filter(
+        (_, ingredientIndex) => ingredientIndex !== index
+      ),
+    }));
+  };
+
+  const handleAddProcessStep = () => {
+    setRecipeData((previous) => ({
+      ...previous,
+      process: [...previous.process, ""],
+    }));
+  };
+
+  const handleProcessStepChange = (index, value) => {
+    setRecipeData((previous) => {
+      const updatedProcess = [...previous.process];
+      updatedProcess[index] = value;
+
+      return {
+        ...previous,
+        process: updatedProcess,
+      };
     });
   };
 
   const handleDeleteProcessStep = (index) => {
-    setRecipeData({
-      ...recipeData,
-      process: recipeData.process.filter((_, i) => i !== index),
-    });
+    setRecipeData((previous) => ({
+      ...previous,
+      process: previous.process.filter(
+        (_, processIndex) => processIndex !== index
+      ),
+    }));
   };
 
-  return (
-    <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-primary/20 backdrop-blur-sm">
-        <div className="w-full max-w-6xl bg-surface rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-180 overflow-y-auto">
-          <main className=" w-full min-h-screen bg-surface p-12 max-w-7xl mx-auto">
-            <div className="mb-12">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[100] bg-slate-950/50 backdrop-blur-sm overflow-y-auto"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-recipe-title"
+      onMouseDown={(event) => {
+        if (
+          event.target === event.currentTarget &&
+          !isLoading
+        ) {
+          closeEditForm();
+        }
+      }}
+    >
+      <div className="min-h-full flex items-start sm:items-center justify-center sm:p-4">
+        <div
+          className="relative w-full max-w-6xl min-h-dvh sm:min-h-0 sm:max-h-[calc(100dvh-2rem)] bg-surface sm:rounded-2xl shadow-2xl overflow-y-auto"
+          onMouseDown={(event) => event.stopPropagation()}
+        >
+          {/* Close button */}
+          <button
+            type="button"
+            onClick={closeEditForm}
+            disabled={isLoading}
+            aria-label="Close edit recipe form"
+            className="sticky top-3 float-right mr-3 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 text-slate-600 shadow-lg hover:bg-error hover:text-white transition-colors disabled:opacity-50"
+          >
+            <span
+              className="material-symbols-outlined"
+              aria-hidden="true"
+            >
+              close
+            </span>
+          </button>
+
+          <main className="w-full p-4 sm:p-6 lg:p-10 xl:p-12">
+            {/* Heading */}
+            <div className="mb-8 lg:mb-12 pr-12">
               <span className="text-secondary font-label text-[10px] uppercase tracking-[0.2em] font-bold">
                 Administrative Interface
               </span>
-              <h1 className="font-display text-5xl text-primary font-bold tracking-tight mt-2">
-                Edit Recipe: <span className="italic">{recipeData.title}</span>
+
+              <h1
+                id="edit-recipe-title"
+                className="font-display text-3xl sm:text-4xl lg:text-5xl text-primary font-bold tracking-tight mt-2 break-words"
+              >
+                Edit Recipe:{" "}
+                <span className="italic">
+                  {recipeData.title}
+                </span>
               </h1>
             </div>
-            {/* <!-- Form Grid --> */}
-            <div className="grid grid-cols-12 gap-12">
-              {/* <!-- Main Editorial Section --> */}
-              <div className="col-span-12 lg:col-span-8 space-y-12">
-                <section className="bg-surface-container-lowest p-10 rounded-xl border border-outline-variant/10 shadow-sm">
-                  <div className="grid gap-8">
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+              {/* Main form */}
+              <div className="lg:col-span-8 space-y-8 lg:space-y-12">
+                {/* Basic information */}
+                <section className="bg-surface-container-lowest p-4 sm:p-6 lg:p-10 rounded-xl border border-outline-variant/10 shadow-sm">
+                  <div className="grid gap-6 lg:gap-8">
                     <div className="space-y-1">
-                      <label className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">
+                      <label
+                        htmlFor="recipe-title"
+                        className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant"
+                      >
                         Recipe Title
                       </label>
+
                       <input
-                        className="editorial-input w-full font-display text-3xl text-primary italic"
+                        id="recipe-title"
+                        className="editorial-input w-full font-display text-xl sm:text-2xl lg:text-3xl text-primary italic"
                         type="text"
                         value={recipeData.title}
-                        onChange={(e) =>
-                          setRecipeData({
-                            ...recipeData,
-                            title: e.target.value,
-                          })
+                        onChange={(event) =>
+                          updateField("title", event.target.value)
                         }
                       />
                     </div>
+
                     <div className="space-y-1">
-                      <label className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">
+                      <label
+                        htmlFor="recipe-creator"
+                        className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant"
+                      >
                         Creator
                       </label>
+
                       <input
-                        className="editorial-input w-full font-body text-lg"
+                        id="recipe-creator"
+                        className="editorial-input w-full font-body text-base sm:text-lg"
                         type="text"
                         value={recipeData.creator_name}
-                        onChange={(e) =>
-                          setRecipeData({
-                            ...recipeData,
-                            creator_name: e.target.value,
-                          })
+                        onChange={(event) =>
+                          updateField(
+                            "creator_name",
+                            event.target.value
+                          )
                         }
                       />
                     </div>
+
                     <div className="space-y-1">
-                      <label className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">
+                      <label
+                        htmlFor="recipe-description"
+                        className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant"
+                      >
                         The Narrative
                       </label>
+
                       <textarea
-                        className="editorial-input w-full font-body text-base leading-relaxed"
+                        id="recipe-description"
+                        className="editorial-input w-full font-body text-base leading-relaxed resize-y"
                         placeholder="Tell the story behind this dish..."
-                        rows="4"
+                        rows={5}
                         value={recipeData.description}
-                        onChange={(e) =>
-                          setRecipeData({
-                            ...recipeData,
-                            description: e.target.value,
-                          })
+                        onChange={(event) =>
+                          updateField(
+                            "description",
+                            event.target.value
+                          )
                         }
-                      >
-                        {recipeData.description}
-                      </textarea>
+                      />
                     </div>
                   </div>
                 </section>
-                {/* <!-- Hero Image Section --> */}
-                <section className="relative group">
-                  <div className="aspect-[16/7] w-full rounded-xl overflow-hidden bg-surface-container-high relative">
-                    <img
-                      className="w-full h-full object-cover"
-                      data-alt="dramatic close-up of charred octopus tentacle on a dark stone plate with bright yellow saffron sauce droplets and herbs"
-                      src={recipeData.image_url}
+
+                {/* Image */}
+                <section>
+                  <div className="aspect-video sm:aspect-[16/7] w-full rounded-xl overflow-hidden bg-surface-container-high">
+                    {recipeData.image_url ? (
+                      <img
+                        alt={recipeData.title || "Recipe"}
+                        className="w-full h-full object-cover"
+                        src={recipeData.image_url}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-on-surface-variant">
+                        No recipe image
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 space-y-1">
+                    <label
+                      htmlFor="recipe-image"
+                      className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant"
+                    >
+                      Image URL
+                    </label>
+
+                    <input
+                      id="recipe-image"
+                      className="editorial-input w-full font-body text-sm"
+                      type="url"
+                      value={recipeData.image_url}
+                      onChange={(event) =>
+                        updateField(
+                          "image_url",
+                          event.target.value
+                        )
+                      }
                     />
                   </div>
                 </section>
-                {/* <!-- Ingredients --> */}
+
+                {/* Ingredients */}
                 <section className="space-y-6">
-                  <div className="flex justify-between items-end border-b border-outline-variant/30 pb-2">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 border-b border-outline-variant/30 pb-2">
                     <h2 className="font-display text-2xl font-bold text-primary italic">
                       Ingredients
                     </h2>
+
                     <button
-                      className="text-secondary font-label text-[10px] uppercase tracking-widest font-bold flex items-center gap-1 hover:opacity-70 transition-all"
-                      onClick={() =>
-                        setRecipeData({
-                          ...recipeData,
-                          ingredients: [...recipeData.ingredients, ""],
-                        })
-                      }
+                      type="button"
+                      className="self-start sm:self-auto text-secondary font-label text-[10px] uppercase tracking-widest font-bold flex items-center gap-1 hover:opacity-70"
+                      onClick={handleAddIngredient}
                     >
                       <span className="material-symbols-outlined text-sm">
                         add_circle
@@ -169,54 +351,64 @@ const EditRecipeForm = ({ recipe, closeEditForm }) => {
                       Add Ingredient
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                    {recipeData.ingredients.map((ingredient, index) => (
-                      <div
-                        className="flex items-center gap-4 group"
-                        key={index}
-                      >
-                        <input
-                          className="editorial-input flex-1 font-body text-sm"
-                          type="text"
-                          value={ingredient}
-                          onChange={(e) => {
-                            const newIngredients = [...recipeData.ingredients];
-                            newIngredients[index] = e.target.value;
-                            setRecipeData({
-                              ...recipeData,
-                              ingredients: newIngredients,
-                            });
-                          }}
-                        />
-                        <button
-                          className="opacity-0 group-hover:opacity-100 text-error"
-                          onClick={() => handleDeleteIngredient(index)}
-                        >
-                          <span
-                            className="material-symbols-outlined"
-                            data-icon="delete"
+
+                  {recipeData.ingredients.length === 0 ? (
+                    <p className="text-sm text-on-surface-variant">
+                      No ingredients added.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 lg:gap-x-12 gap-y-4">
+                      {recipeData.ingredients.map(
+                        (ingredient, index) => (
+                          <div
+                            className="flex items-center gap-3 group"
+                            key={index}
                           >
-                            delete
-                          </span>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                            <input
+                              className="editorial-input flex-1 min-w-0 font-body text-sm"
+                              type="text"
+                              aria-label={`Ingredient ${index + 1}`}
+                              value={ingredient}
+                              onChange={(event) =>
+                                handleIngredientChange(
+                                  index,
+                                  event.target.value
+                                )
+                              }
+                            />
+
+                            <button
+                              type="button"
+                              className="shrink-0 text-error opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
+                              aria-label={`Delete ingredient ${
+                                index + 1
+                              }`}
+                              onClick={() =>
+                                handleDeleteIngredient(index)
+                              }
+                            >
+                              <span className="material-symbols-outlined">
+                                delete
+                              </span>
+                            </button>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )}
                 </section>
-                {/* <!-- Preparation Steps --> */}
-                <section className="space-y-8">
-                  <div className="flex justify-between items-end border-b border-outline-variant/30 pb-2">
+
+                {/* Process */}
+                <section className="space-y-6 lg:space-y-8">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 border-b border-outline-variant/30 pb-2">
                     <h2 className="font-display text-2xl font-bold text-primary italic">
                       Preparation Steps
                     </h2>
+
                     <button
-                      className="text-secondary font-label text-[10px] uppercase tracking-widest font-bold flex items-center gap-1 hover:opacity-70 transition-all"
-                      onClick={() =>
-                        setRecipeData({
-                          ...recipeData,
-                          process: [...recipeData.process, ""],
-                        })
-                      }
+                      type="button"
+                      className="self-start sm:self-auto text-secondary font-label text-[10px] uppercase tracking-widest font-bold flex items-center gap-1 hover:opacity-70"
+                      onClick={handleAddProcessStep}
                     >
                       <span className="material-symbols-outlined text-sm">
                         add_task
@@ -224,244 +416,278 @@ const EditRecipeForm = ({ recipe, closeEditForm }) => {
                       Add Step
                     </button>
                   </div>
-                  <div className="space-y-12">
-                    {recipeData.process.map((step, index) => (
-                      // {(JSON.parse(recipeData.process)).map((step, index) => (
-                      <div className="relative pl-16 flex group" key={index}>
-                        <span className="absolute left-0 top-0 text-7xl font-display font-bold text-primary/5 select-none">
-                          0{index + 1}
-                        </span>
-                        <div className="space-y-2 flex-1">
-                          <label className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">
-                            The Blanch
-                          </label>
-                          <textarea
-                            className="editorial-input w-full font-body text-base leading-relaxed"
-                            rows="2"
-                            value={step}
-                            onChange={(e) => {
-                              const newProcess = [...recipeData.process];
-                              newProcess[index] = e.target.value;
-                              setRecipeData({
-                                ...recipeData,
-                                process: newProcess,
-                              });
-                            }}
-                          ></textarea>
-                        </div>
-                        <button
-                          className="opacity-0 group-hover:opacity-100 text-error"
-                          onClick={() => handleDeleteProcessStep(index)}
+
+                  {recipeData.process.length === 0 ? (
+                    <p className="text-sm text-on-surface-variant">
+                      No preparation steps added.
+                    </p>
+                  ) : (
+                    <div className="space-y-8 lg:space-y-12">
+                      {recipeData.process.map((step, index) => (
+                        <div
+                          className="relative pl-10 sm:pl-16 flex gap-2 group"
+                          key={index}
                         >
-                          <span
-                            className="material-symbols-outlined"
-                            data-icon="delete"
-                          >
-                            delete
+                          <span className="absolute left-0 top-0 text-4xl sm:text-7xl font-display font-bold text-primary/5 select-none">
+                            {String(index + 1).padStart(2, "0")}
                           </span>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+
+                          <div className="space-y-2 flex-1 min-w-0">
+                            <label
+                              htmlFor={`process-step-${index}`}
+                              className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant"
+                            >
+                              Step {index + 1}
+                            </label>
+
+                            <textarea
+                              id={`process-step-${index}`}
+                              className="editorial-input w-full font-body text-base leading-relaxed resize-y"
+                              rows={3}
+                              value={step}
+                              onChange={(event) =>
+                                handleProcessStepChange(
+                                  index,
+                                  event.target.value
+                                )
+                              }
+                            />
+                          </div>
+
+                          <button
+                            type="button"
+                            className="self-start shrink-0 text-error opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
+                            aria-label={`Delete step ${index + 1}`}
+                            onClick={() =>
+                              handleDeleteProcessStep(index)
+                            }
+                          >
+                            <span className="material-symbols-outlined">
+                              delete
+                            </span>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </section>
               </div>
-              {/* <!-- Sidebar Content --> */}
-              <div className="col-span-12 lg:col-span-4 space-y-8">
-                {/* <!-- Recipe Meta Bento --> */}
-                <div className="bg-surface-container-low p-8 rounded-xl space-y-8">
+
+              {/* Right sidebar */}
+              <div className="lg:col-span-4 space-y-6 lg:space-y-8">
+                {/* Recipe metadata */}
+                <section className="bg-surface-container-low p-4 sm:p-6 lg:p-8 rounded-xl space-y-6">
                   <h3 className="font-display text-xl font-bold text-primary italic border-b border-outline-variant/30 pb-2">
                     Recipe Meta
                   </h3>
-                  <div className="grid grid-cols-2 gap-6">
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 lg:gap-6">
                     <div className="space-y-1">
-                      <label className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">
+                      <label
+                        htmlFor="cooking-time"
+                        className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant"
+                      >
                         Cook Time
                       </label>
+
                       <div className="flex items-center gap-2">
                         <input
-                          className="editorial-input w-full text-sm"
-                          type="text"
+                          id="cooking-time"
+                          className="editorial-input w-full min-w-0 text-sm"
+                          type="number"
+                          min="0"
                           value={recipeData.cooking_time}
-                          onChange={(e) =>
-                            setRecipeData({
-                              ...recipeData,
-                              cooking_time: e.target.value,
-                            })
+                          onChange={(event) =>
+                            updateField(
+                              "cooking_time",
+                              event.target.value
+                            )
                           }
                         />
+
                         <span className="text-[10px] font-label font-bold text-on-surface-variant">
                           MIN
                         </span>
                       </div>
                     </div>
+
                     <div className="space-y-1">
-                      <label className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">
+                      <label
+                        htmlFor="preparation-time"
+                        className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant"
+                      >
                         Prep Time
                       </label>
+
                       <div className="flex items-center gap-2">
                         <input
-                          className="editorial-input w-full text-sm"
-                          type="text"
+                          id="preparation-time"
+                          className="editorial-input w-full min-w-0 text-sm"
+                          type="number"
+                          min="0"
                           value={recipeData.preparation_time}
-                          onChange={(e) =>
-                            setRecipeData({
-                              ...recipeData,
-                              preparation_time: e.target.value,
-                            })
+                          onChange={(event) =>
+                            updateField(
+                              "preparation_time",
+                              event.target.value
+                            )
                           }
                         />
+
                         <span className="text-[10px] font-label font-bold text-on-surface-variant">
                           MIN
                         </span>
                       </div>
                     </div>
+
                     <div className="space-y-1">
-                      <label className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">
+                      <label
+                        htmlFor="difficulty-level"
+                        className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant"
+                      >
                         Level
                       </label>
-                      <select className="editorial-input w-full text-sm appearance-none cursor-pointer">
-                        <option>{recipeData.difficulty_level}</option>
+
+                      <select
+                        id="difficulty-level"
+                        className="editorial-input w-full text-sm cursor-pointer"
+                        value={recipeData.difficulty_level}
+                        onChange={(event) =>
+                          updateField(
+                            "difficulty_level",
+                            event.target.value
+                          )
+                        }
+                      >
+                        <option value="">Select level</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
                       </select>
                     </div>
+
                     <div className="space-y-1">
-                      <label className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">
+                      <label
+                        htmlFor="meal-type"
+                        className="font-label text-[10px] uppercase tracking-widest font-bold text-on-surface-variant"
+                      >
                         Meal Type
                       </label>
-                      <select className="editorial-input w-full text-sm appearance-none cursor-pointer">
-                        <option>{recipeData.meal_type}</option>
+
+                      <select
+                        id="meal-type"
+                        className="editorial-input w-full text-sm cursor-pointer"
+                        value={recipeData.meal_type}
+                        onChange={(event) =>
+                          updateField(
+                            "meal_type",
+                            event.target.value
+                          )
+                        }
+                      >
+                        <option value="">Select meal</option>
+                        <option value="anytime">AnyTime</option>
+                        <option value="breakfast">Breakfast</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="dinner">Dinner</option>
                       </select>
                     </div>
                   </div>
-                </div>
-                {/* <!-- Nutrition Profile Card --> */}
-                <div className="bg-primary text-on-primary p-8 rounded-xl shadow-lg relative overflow-hidden">
-                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-on-primary/5 rounded-full blur-2xl"></div>
+                </section>
+
+                {/* Nutrition */}
+                <section className="bg-primary text-on-primary p-4 sm:p-6 lg:p-8 rounded-xl shadow-lg relative overflow-hidden">
+                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-on-primary/5 rounded-full blur-2xl" />
+
                   <h3 className="font-display text-xl font-bold italic mb-6">
                     Nutrition Profile
                   </h3>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center border-b border-on-primary/10 pb-2">
-                      <span className="font-label text-[10px] uppercase tracking-widest">
-                        Calories
-                      </span>
-                      <input
-                        className="bg-transparent border-none p-0 text-right font-body text-sm w-12 focus:ring-0"
-                        type="text"
-                        value={recipeData.Calories}
-                        onChange={(e) =>
-                          setRecipeData({
-                            ...recipeData,
-                            Calories: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="flex justify-between items-center border-b border-on-primary/10 pb-2">
-                      <span className="font-label text-[10px] uppercase tracking-widest">
-                        Protein (g)
-                      </span>
-                      <input
-                        className="bg-transparent border-none p-0 text-right font-body text-sm w-12 focus:ring-0"
-                        type="text"
-                        value={recipeData.Protein}
-                        onChange={(e) =>
-                          setRecipeData({
-                            ...recipeData,
-                            Protein: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="flex justify-between items-center border-b border-on-primary/10 pb-2">
-                      <span className="font-label text-[10px] uppercase tracking-widest">
-                        Fats (g)
-                      </span>
-                      <input
-                        className="bg-transparent border-none p-0 text-right font-body text-sm w-12 focus:ring-0"
-                        type="text"
-                        value={recipeData.Fats}
-                        onChange={(e) =>
-                          setRecipeData({ ...recipeData, Fats: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div className="flex justify-between items-center border-b border-on-primary/10 pb-2">
-                      <span className="font-label text-[10px] uppercase tracking-widest">
-                        Carbs (g)
-                      </span>
-                      <input
-                        className="bg-transparent border-none p-0 text-right font-body text-sm w-12 focus:ring-0"
-                        type="text"
-                        value={recipeData.Carbs}
-                        onChange={(e) =>
-                          setRecipeData({
-                            ...recipeData,
-                            Carbs: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
+
+                  <div className="space-y-4 relative">
+                    {[
+                      ["Calories", "Calories"],
+                      ["Protein (g)", "Protein"],
+                      ["Fats (g)", "Fats"],
+                      ["Carbs (g)", "Carbs"],
+                    ].map(([label, field]) => (
+                      <label
+                        key={field}
+                        className="flex justify-between items-center gap-4 border-b border-on-primary/10 pb-2"
+                      >
+                        <span className="font-label text-[10px] uppercase tracking-widest">
+                          {label}
+                        </span>
+
+                        <input
+                          className="bg-transparent border-none p-0 text-right font-body text-sm w-20 focus:ring-0"
+                          type="number"
+                          min="0"
+                          value={recipeData[field]}
+                          onChange={(event) =>
+                            updateField(field, event.target.value)
+                          }
+                        />
+                      </label>
+                    ))}
                   </div>
-                </div>
-                {/* <!-- Pro Tip Section --> */}
-                <div className="bg-secondary-fixed text-on-secondary-fixed p-8 rounded-xl border border-secondary/20">
+                </section>
+
+                {/* Tips */}
+                <section className="bg-secondary-fixed text-on-secondary-fixed p-4 sm:p-6 lg:p-8 rounded-xl border border-secondary/20">
                   <div className="flex items-center gap-2 mb-4">
                     <span
                       className="material-symbols-outlined text-secondary"
-                      style={{ fontVariationSettings: "'FILL' 1" }}
+                      aria-hidden="true"
+                      style={{
+                        fontVariationSettings: "'FILL' 1",
+                      }}
                     >
                       restaurant_menu
                     </span>
+
                     <h3 className="font-display text-xl font-bold italic">
-                      Chef's Pro Tip
+                      Chef&apos;s Pro Tip
                     </h3>
                   </div>
+
                   <textarea
-                    className="w-full bg-transparent border-none font-body text-sm leading-relaxed p-0 italic focus:ring-0"
+                    className="w-full bg-transparent border-none font-body text-sm leading-relaxed p-0 italic focus:ring-0 resize-y"
                     placeholder="Secret kitchen wisdom..."
-                    rows="4"
+                    rows={5}
                     value={recipeData.tips}
-                    onChange={(e) =>
-                      setRecipeData({ ...recipeData, tips: e.target.value })
+                    onChange={(event) =>
+                      updateField("tips", event.target.value)
                     }
-                  ></textarea>
-                </div>
-                <div className="flex flex-col gap-2">
+                  />
+                </section>
+
+                {/* Actions */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
                   <button
-                    className="bg-error text-on-error px-6 py-3 rounded-full font-label uppercase tracking-widest text-[10px] font-bold hover:bg-error/90 transition-all"
-                    onClick={() => {
-                      closeEditForm(); // Close the form after saving
-                    }}
+                    type="button"
+                    className="order-2 sm:order-1 lg:order-1 bg-error text-on-error px-6 py-3 rounded-full font-label uppercase tracking-widest text-[10px] font-bold hover:bg-error/90 transition-all disabled:opacity-50"
+                    onClick={closeEditForm}
+                    disabled={isLoading}
                   >
                     Close
                   </button>
+
                   <button
-                    className="bg-primary text-on-primary px-6 py-3 rounded-full font-label uppercase tracking-widest text-[10px] font-bold hover:bg-primary/90 transition-all"
-                    onClick={() => {
-                      handleSaveChanges();
-                    }}
+                    type="button"
+                    className="order-1 sm:order-2 lg:order-2 bg-primary text-on-primary px-6 py-3 rounded-full font-label uppercase tracking-widest text-[10px] font-bold hover:bg-primary/90 transition-all disabled:opacity-50"
+                    onClick={handleSaveChanges}
                     disabled={isLoading}
                   >
                     {isLoading ? "Saving..." : "Save Changes"}
                   </button>
-                </div>
-                {/* <!-- Kitchen Mode Toggle --> */}
-                <div className="fixed bottom-12 right-12 z-50">
-                  <div className="bg-white/80 backdrop-blur-xl p-4 rounded-full shadow-xl border border-outline-variant/30 flex items-center gap-6 px-8">
-                    <span className="font-label text-[10px] uppercase tracking-widest font-bold text-primary">
-                      Kitchen Mode
-                    </span>
-                    <button className="w-12 h-6 bg-surface-container-highest rounded-full relative p-1 transition-colors hover:bg-secondary/20">
-                      <div className="w-4 h-4 bg-secondary rounded-full absolute right-1 top-1 shadow-sm"></div>
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
           </main>
         </div>
       </div>
-    </>
+    </div>,
+    document.body
   );
 };
 

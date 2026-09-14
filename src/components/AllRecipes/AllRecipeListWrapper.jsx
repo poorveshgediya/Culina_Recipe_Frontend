@@ -29,9 +29,28 @@ const AllRecipeListWrapper = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    if (token) {
+    if (!token) return;
+
+    try {
       const decodedToken = jwtDecode(token);
-      setUser({ full_name: decodedToken.full_name });
+      const fullName = decodedToken.full_name || "";
+
+      const nameParts = fullName.trim().split(/\s+/);
+      const firstName = nameParts[0] || "";
+      const surname = nameParts.at(-1) || "";
+
+      const shortName =
+        nameParts.length > 1
+          ? `${firstName.charAt(0)}${surname.charAt(0)}`.toUpperCase()
+          : firstName.slice(0, 2).toUpperCase();
+
+      setUser({
+        full_name: fullName,
+        short_name: shortName,
+      });
+    } catch (error) {
+      console.error("Invalid token:", error);
+      localStorage.removeItem("token");
     }
   }, []);
 
@@ -52,7 +71,12 @@ const AllRecipeListWrapper = () => {
             recipeNav={recipeNav}
           />
 
-          <AllRecipe recipeNav={recipeNav} handleChangeRecipeNavToAllRecipes={handleChangeRecipeNavToAllRecipes} />
+          <AllRecipe
+            recipeNav={recipeNav}
+            handleChangeRecipeNavToAllRecipes={
+              handleChangeRecipeNavToAllRecipes
+            }
+          />
         </div>
       )}
 
