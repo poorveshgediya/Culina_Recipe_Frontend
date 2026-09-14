@@ -26,7 +26,6 @@ const LogIn = () => {
           password,
         })
         .then((response) => {
-          console.log(response.data);
           const { token } = response.data;
           localStorage.setItem("token", token);
           const user = jwtDecode(token);
@@ -40,7 +39,6 @@ const LogIn = () => {
           }
         })
         .catch((error) => {
-          console.error("Login failed:", error);
           const serverErrMess =
             error.response.data.message || "Login failed. Please try again.";
           setErrMess(serverErrMess);

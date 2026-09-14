@@ -1,17 +1,30 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import LogoLoader from "./../../LogoLoader";
+import { SearchContext } from "../SearchContextProvider";
 
 const RecipeView = ({ recipeView, selectedRecipe }) => {
   const [recipes, setRecipes] = useState([]);
   const [listSkeleton, setListSkeleton] = useState(false);
+  const [debouncedSearchText, setDebouncedSearchText] = useState("");
+
+  const { searchText } = useContext(SearchContext);
+
+  console.log("searchText in RecipeView:", searchText);
 
   const tkn = localStorage.getItem("token");
   const userId = tkn ? jwtDecode(tkn).user_id : "guest";
+
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedSearchText(searchText.trim());
+    }, 1000);
+    return () => clearTimeout(timerId);
+  }, [searchText]);
 
   const fetchRecipes = useCallback(async () => {
     try {
@@ -25,22 +38,27 @@ const RecipeView = ({ recipeView, selectedRecipe }) => {
             category: selectedRecipe.selectedCategorie,
             sort: selectedRecipe.newORold,
             time: selectedRecipe.underMinutes,
+            search: debouncedSearchText,
           },
         },
       );
       const data = await response.data;
-      setRecipes(data.rows);
+      setRecipes(data.rows || []);
     } catch (error) {
       console.error("Error fetching recipes:", error);
+    } finally {
+      setListSkeleton(false);
     }
-  }, [selectedRecipe]);
+  }, [selectedRecipe, debouncedSearchText, userId, tkn]);
 
   useEffect(() => {
     setListSkeleton(true);
     fetchRecipes();
   }, [fetchRecipes]);
 
-  if (recipes.length === 0) return <LogoLoader />;
+  if (listSkeleton) {
+    return <LogoLoader />;
+  }
 
   const handleAddToFavorites = async (recipeId) => {
     await axios

@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+import { SearchContext } from "./SearchContextProvider";
 
 const Header = ({
   user,
@@ -7,7 +8,11 @@ const Header = ({
   handleChangeRecipeNavToFavouriteRecipes,
   handleChangeRecipeNavToAllRecipes,
   recipeNav,
+  children,
 }) => {
+
+  const {searchText, setSearchText} = useContext(SearchContext);
+
   const handleRemoveUserFromLocalStorage = () => {
     localStorage.removeItem("token");
     window.location.href = "/";
@@ -21,11 +26,11 @@ const Header = ({
             <span className="material-symbols-outlined text-3xl font-bold">
               cooking
             </span>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 max-[1024px]:hidden">
               CulinaShare
             </h1>
           </Link>
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="flex items-center gap-6">
             <Link
               className={`text-sm ${recipeNav === "AllRecipes" ? "font-semibold text-primary" : "font-medium text-slate-600  hover:text-primary transition-colors"}`}
               onClick={handleChangeRecipeNavToAllRecipes}
@@ -48,6 +53,8 @@ const Header = ({
             className="w-full bg-slate-100 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/50"
             placeholder="Search recipes, ingredients..."
             type="text"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
           />
         </div>
         <div className="flex items-center gap-8">
@@ -71,11 +78,16 @@ const Header = ({
                 className="w-8 h-8 rounded-full object-cover border border-outline-variant/20"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSuR2X0Ywr1KvarhcZ8dT2C_qyhfgVwtLO1Y9IFDBFQS7ueCLPgTr0Z6Vl_Z8AY5jpkBmdPK1qw8UO5_HeZV5KqIFAGqgbUqcYpOKjq9Nb3B5SfB7A9JXXdjrFl0GAoB-eFhTb_0kho8ZVoqAfiY5vRMLD6RSNazqBPl8QE0DePPYN6yPq_8HTyfWX7b4DuMMcSBeSBbAI3zX5mDq3I4gtLfHbYI8v-egEiti7dgSgokVNX-FhR9JKJ6DHT5CPlGB1Wke4E5t7qv78"
               />
-              <span className="text-sm font-label font-bold uppercase tracking-widest text-primary">
+              <>
+              <div className="flex flex-col max-[1024px]:hidden">
+
+              </div>
+              </>
+              <span className="text-sm font-label font-bold uppercase tracking-widest text-primary max-[1024px]:hidden">
                 {user?.full_name}
               </span>
               <Link
-                className="hidden md:block text-primary-container/70  hover:bg-surface-container-low transition-colors px-3 py-1 rounded-lg text-sm font-medium"
+                className="max-[1024px]:hidden md:block text-primary-container/70  hover:bg-surface-container-low transition-colors px-3 py-1 rounded-lg text-sm font-medium"
                 href="#"
                 onClick={handleRemoveUserFromLocalStorage}
               >

@@ -17,7 +17,11 @@ const UserDirectory = () => {
   };
 
   const showUsers = useCallback(() => {
-    axios.get(`${import.meta.env.VITE_RECIPE_APP_API}/admin/members`)
+    axios.get(`${import.meta.env.VITE_RECIPE_APP_API}/admin/members`,{
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
       .then((res) => res.data)
       .then((data) => setUsers(data))
       .catch((err) => alert(err.response?.data?.message || "Failed to fetch users. Check if the server is running."));
