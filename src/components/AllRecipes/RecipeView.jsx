@@ -82,6 +82,14 @@ const RecipeView = ({ recipeView, selectedRecipe }) => {
 
   return (
     <>
+      {recipes.length === 0 && (
+        <div className="flex flex-col items-center justify-center h-full">
+          <span className="material-symbols-outlined text-6xl text-slate-400">
+            sentiment_dissatisfied
+          </span>
+          <p className="text-slate-400 text-lg mt-2">No recipes found</p>
+        </div>
+      )}
       {recipes.map((r, i) => (
         <div
           className={` bg-white rounded-xl border hover:shadow-lg ${recipeView.gridView ? "recipe-card group border-primary/5 shadow-sm transition-all duration-300 flex flex-col justify-between" : "group flex flex-col md:flex-row items-center gap-6 p-4 border border-transparent hover:border-primary/20 transition-all"}`}

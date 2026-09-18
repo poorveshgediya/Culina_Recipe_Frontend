@@ -17,14 +17,20 @@ const UserDirectory = () => {
   };
 
   const showUsers = useCallback(() => {
-    axios.get(`${import.meta.env.VITE_RECIPE_APP_API}/admin/members`,{
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
+    axios
+      .get(`${import.meta.env.VITE_RECIPE_APP_API}/admin/members`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
       .then((res) => res.data)
       .then((data) => setUsers(data))
-      .catch((err) => alert(err.response?.data?.message || "Failed to fetch users. Check if the server is running."));
+      .catch((err) =>
+        alert(
+          err.response?.data?.message ||
+            "Failed to fetch users. Check if the server is running.",
+        ),
+      );
   }, []);
 
   useEffect(() => {
@@ -44,20 +50,25 @@ const UserDirectory = () => {
     <>
       {!showCreateForm && (
         <div className="p-8 max-w-7xl">
-          <div className="flex justify-between items-end mb-10">
-            <div>
-              <h3 className="font-headline text-4xl font-bold text-primary tracking-tight mb-2">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-5 mb-7 sm:mb-10">
+            <div className="min-w-0">
+              <h3 className="font-headline text-2xl sm:text-3xl lg:text-4xl font-bold text-primary tracking-tight mb-2">
                 CulinaShare Community
               </h3>
-              <p className="text-on-surface-variant/80 font-body">
+
+              <p className="text-sm sm:text-base text-on-surface-variant/80 font-body">
                 Managing the creative minds behind our digital table.
               </p>
             </div>
+
             <button
-              className="bg-gradient-to-r from-secondary to-secondary-container text-white px-8 py-4 rounded-full font-label text-sm font-bold uppercase tracking-widest editorial-shadow flex items-center gap-2 hover:scale-[1.02] transition-transform active:scale-95"
+              type="button"
+              className="w-full sm:w-auto shrink-0 bg-gradient-to-r from-secondary to-secondary-container text-white px-5 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-full font-label text-xs sm:text-sm font-bold uppercase tracking-wider sm:tracking-widest editorial-shadow flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform active:scale-95"
               onClick={handleCreateUserClick}
             >
-              <span className="material-symbols-outlined">person_add</span>
+              <span className="material-symbols-outlined" aria-hidden="true">
+                person_add
+              </span>
               Add New User
             </button>
           </div>
@@ -69,7 +80,9 @@ const UserDirectory = () => {
               onClick={() => setActiveTab("member")}
             >
               Members{" "}
-              <span className={`ml-2 px-2 py-0.5 ${activeTab === "member" ? "bg-secondary-fixed text-on-secondary-fixed" : "bg-surface-container-highest text-on-surface-variant"} text-xs rounded-full`}>
+              <span
+                className={`ml-2 px-2 py-0.5 ${activeTab === "member" ? "bg-secondary-fixed text-on-secondary-fixed" : "bg-surface-container-highest text-on-surface-variant"} text-xs rounded-full`}
+              >
                 {members.length}
               </span>
             </button>
@@ -78,7 +91,9 @@ const UserDirectory = () => {
               onClick={() => setActiveTab("admin")}
             >
               Admins{" "}
-              <span className={`ml-2 px-2 py-0.5 ${activeTab === "admin" ? "bg-secondary-fixed text-on-secondary-fixed" : "bg-surface-container-highest text-on-surface-variant"} text-xs rounded-full`}>
+              <span
+                className={`ml-2 px-2 py-0.5 ${activeTab === "admin" ? "bg-secondary-fixed text-on-secondary-fixed" : "bg-surface-container-highest text-on-surface-variant"} text-xs rounded-full`}
+              >
                 {admins.length}
               </span>
             </button>
@@ -107,17 +122,24 @@ const UserDirectory = () => {
               </thead>
               <tbody className="divide-y divide-outline-variant/10">
                 {/* <!-- User Row 1 --> */}
-                {activeTab === "member" && <Members members={members} refreshUsers={showUsers} />}
+                {activeTab === "member" && (
+                  <Members members={members} refreshUsers={showUsers} />
+                )}
 
                 {/* <!-- Admin Example Row (For Visual Context in Member Tab) --> */}
-                {activeTab === "admin" && <Admins admins={admins} refreshUsers={showUsers} />}
+                {activeTab === "admin" && (
+                  <Admins admins={admins} refreshUsers={showUsers} />
+                )}
               </tbody>
             </table>
           </div>
         </div>
       )}
       {showCreateForm && (
-        <CreateUser handleCreateUserClick={handleCreateUserClick} showUsers={showUsers} />
+        <CreateUser
+          handleCreateUserClick={handleCreateUserClick}
+          showUsers={showUsers}
+        />
       )}
     </>
   );

@@ -76,7 +76,7 @@ const NavBar = () => {
             All Recipes
           </Link>
 
-          <Link className={navLinkClass("/about")} to="/about">
+          <Link className={navLinkClass("/about")} to="">
             About
           </Link>
         </div>
@@ -158,7 +158,7 @@ const NavBar = () => {
           </Link>
 
           <Link
-            to="/about"
+            to=""
             className={`px-4 py-3 rounded-lg ${
               location.pathname === "/about"
                 ? "bg-primary/10 text-primary"

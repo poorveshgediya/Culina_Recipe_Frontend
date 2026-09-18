@@ -18,7 +18,7 @@ const Footer = () => {
                   </h1>
                 </div>
                 <p className="text-sm leading-relaxed">
-                  Sharing the world's best recipes since 2024. Join our
+                  Sharing the world's best recipes since 2026. Join our
                   community of culinary enthusiasts.
                 </p>
               </div>
