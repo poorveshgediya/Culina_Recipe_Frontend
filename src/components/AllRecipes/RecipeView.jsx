@@ -14,8 +14,6 @@ const RecipeView = ({ recipeView, selectedRecipe }) => {
 
   const { searchText } = useContext(SearchContext);
 
-  console.log("searchText in RecipeView:", searchText);
-
   const tkn = localStorage.getItem("token");
   const userId = tkn ? jwtDecode(tkn).user_id : "guest";
 
